@@ -1,73 +1,73 @@
 import React, { Component } from "react";
 import Book from "./Book";
+import Searchbar from "./Searchbar";
 import * as BooksAPI from ".././BooksAPI";
-import { Link } from "react-router-dom";
 
 class SearchPage extends Component {
-  state = {
-    query: "",
-    results: []
-  };
+	state = {
+		query: "",
+		results: []
+	};
 
-  updateQuery = ({ target: { value: query } }) =>
-    this.setState({ query }, () => this.getResults());
+/* ---- Gets the value of the query input and calls the getResults() to display books ----- */
+	updateQuery = ({ target: { value: query } }) =>
+		this.setState({ query }, () => this.getResults());
 
-  getResults = () => {
-    const { query } = this.state;
-    if (query) {
-      BooksAPI.search(query).then(results => {
-        if (results.error) {
-          return this.setState({ results: [] });
-        }
-        this.setState({ results });
-      });
-    } else {
-      this.setState({ results: [], query: "" });
-    }
-  };
+/* ---- Gets the books based on updateQuery() ----- */		
+	getResults = () => {
+		const { query } = this.state;
 
-  updateShelf = (result, shelf) => {
-    BooksAPI.update(result, shelf).then(() => {
-      result.shelf = shelf;
-      const reorderedBooks = this.state.results
-        .filter(fb => fb.id !== result.id)
-        .splice([result]);
-      this.setState({ results: reorderedBooks });
-    });
-  };
+		// If the input has a value then display results. 
+		if (query) {
+			BooksAPI.search(query).then(results => {
 
-  render() {
-    return (
-      <div className="search-books">
-        {/* <Searchbar /> */}
-        <div className="search-books-bar">
-          <Link to="/" className="close-search">
-            Close
-          </Link>
-          <div className="search-books-input-wrapper">
-            <input
-              placeholder="Search for books by title or author"
-              value={this.state.query}
-              onChange={this.updateQuery}
-            />
-          </div>
-        </div>
-        <div className="search-books-results">
-          <ol className="books-grid">
-            {this.state.results.map(result => (
-              <li key={result.id}>
-                <Book
-                  book={result}
-                  value="none"
-                  updateShelf={this.updateShelf}
-                />
-              </li>
-            ))}
-          </ol>
-        </div>
-      </div>
-    );
-  }
+		// If the query is an invalid value or has an error, clean array and display none		
+				if (results.error) {
+					return this.setState({ results: [] });
+				}
+				
+		// Set state to the results after query	
+				this.setState({ results });
+			});
+
+		// If there is no query, then set query and results state to empty values
+		} else {
+			this.setState({ results: [], query: "" });
+		}
+
+	};
+
+	render() {
+		return (
+			<div className="search-books">
+
+{/* ---- Import SearchBar Component ----- */}
+
+				<Searchbar
+					query={this.state.query}
+					updateQuery={this.updateQuery}
+				/>
+
+				<div className="search-books-results">
+					<ol className="books-grid">
+
+{/* ---- Filters and maps the results to display correct shelf on dropdown by comparing the books array, then maps to generate the UI ----- */}
+
+						{this.state.results.filter(result => this.props.books.map(book => (book.id === result.id ? result.shelf = book.shelf : '')),
+						)
+							.map(result => (
+								<li key={result.id}>
+									<Book
+										book={result}
+										updateShelf={this.props.updateShelf}
+									/>
+								</li>
+							))}
+					</ol>
+				</div>
+			</div>
+		);
+	}
 }
 
 export default SearchPage;

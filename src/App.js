@@ -1,6 +1,6 @@
-import React, { Component } from "react";
+import React from "react";
 import * as BooksAPI from "./BooksAPI";
-import { BrowserRouter, Route, Link } from "react-router-dom";
+import { Route, Link } from "react-router-dom";
 import "./App.css";
 import Shelf from "./components/Shelf";
 import SearchPage from "./components/SearchPage";
@@ -28,7 +28,15 @@ class BooksApp extends React.Component {
   render() {
     return (
       <div className="app">
-        <Route path="/search" render={() => <SearchPage />} />
+        <Route path="/search"
+/* ---- Import SearchPage after assigning route /search and passes books state and updateShelf() ----- */
+          render={() =>
+            <SearchPage
+              books={this.state.books}
+              updateShelf={this.updateShelf}
+            />
+          }
+        />
 
         <Route
           exact
@@ -38,6 +46,8 @@ class BooksApp extends React.Component {
               <div className="list-books-title">
                 <h1>MyReads</h1>
               </div>
+
+{/* ---- The shelf component is imported and passed the props from the books state array ----- */}
 
               <div className="list-books-content">
                 <div>
